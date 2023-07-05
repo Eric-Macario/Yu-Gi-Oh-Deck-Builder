@@ -9,10 +9,12 @@ Users will be able to track their personal Yu-Gi-Oh card collection and will be 
 ## API Routes
 | API Route  	| Request<br>Method 	| Body                                                            	| Response                                                            	|
 |------------	|-------------------	|-----------------------------------------------------------------	|---------------------------------------------------------------------	|
-| /collection  	| POST              	| {id, title, description, img, tcgplayer_price, set_name}          | {id, title, description, img, tcgplayer_price, set_name}              |
-| /collection   | GET               	| {id, title, description, img, tcgplayer_price, set_name}          | {id, title, description, img, tcgplayer_price, set_name}             	|
+| /gallery  	| POST              	| {id, title, description, img, tcgplayer_price, set_name}          | {id, title, description, img, tcgplayer_price, set_name}              |
+| /gallery      | GET               	| {id, title, description, img, tcgplayer_price, set_name}          | {id, title, description, img, tcgplayer_price, set_name}             	|
+| /deckbuilder  | GET                	| {id, title, description, type, } 	                                | {id, title, description, deck_id}                                   	|
+| /deckbuilder  | POST              	| {id, title, description, type, } 	                                | {id, title, description, deck_id}                                   	|
 | /deckbuilder  | PATCH              	| {id, title, description, type, } 	                                | {id, title, description, deck_id}                                   	|
-| /deckbuilder/:id| DELETE              | {id, deck_id } 	                                                | {id, deck_id}                                                       	|
+| /deckbuilder  | DELETE                | {id, deck_id } 	                                                | {id, deck_id}                                                       	|
 | /login 	    | GET                	| {username, name}                                                 	| {username, name}                                                  	|
 | /profile/:id 	| Patch             	|                                                                  	| {name}                                                              	|
 
@@ -24,7 +26,7 @@ Users will be able to track their personal Yu-Gi-Oh card collection and will be 
 | /home                	| Home.js         	|
 | /deckbuilder         	| Deckbuilder.js   	|
 | /profile          	| Profile.js       	|
-| /collection          	| Collection.js     |
+| /gallery          	| Gallery.js        |
 
 ## React Tree
 <img src="Readmeimgs/yugioh react.png">
