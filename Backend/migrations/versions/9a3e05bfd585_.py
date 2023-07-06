@@ -1,8 +1,8 @@
-"""message
+"""empty message
 
-Revision ID: 8701c9dcfa76
+Revision ID: 9a3e05bfd585
 Revises: 
-Create Date: 2023-07-05 15:38:14.474203
+Create Date: 2023-07-06 18:02:07.434884
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8701c9dcfa76'
+revision = '9a3e05bfd585'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -58,25 +58,28 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('collection_cards',
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('collection_id', sa.Integer(), nullable=False),
     sa.Column('card_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['card_id'], ['cards.id'], ),
     sa.ForeignKeyConstraint(['collection_id'], ['collections.id'], ),
-    sa.PrimaryKeyConstraint('collection_id', 'card_id')
+    sa.PrimaryKeyConstraint('id', 'collection_id', 'card_id')
     )
     op.create_table('deck_cards',
-    sa.Column('deck_id', sa.Integer(), nullable=False),
-    sa.Column('card_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('deck_id', sa.Integer(), nullable=True),
+    sa.Column('card_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['card_id'], ['cards.id'], ),
     sa.ForeignKeyConstraint(['deck_id'], ['decks.id'], ),
-    sa.PrimaryKeyConstraint('deck_id', 'card_id')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('wishlist_cards',
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('wishlist_id', sa.Integer(), nullable=False),
     sa.Column('card_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['card_id'], ['cards.id'], ),
     sa.ForeignKeyConstraint(['wishlist_id'], ['wishlists.id'], ),
-    sa.PrimaryKeyConstraint('wishlist_id', 'card_id')
+    sa.PrimaryKeyConstraint('id', 'wishlist_id', 'card_id')
     )
     # ### end Alembic commands ###
 
