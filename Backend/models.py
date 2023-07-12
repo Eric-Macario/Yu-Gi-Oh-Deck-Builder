@@ -61,13 +61,17 @@ class Collection(db.Model, SerializerMixin):
     cards = db.relationship('Card', secondary=collection_cards, back_populates='collections')
     user = db.relationship('User', back_populates='collections')
 
+    serialize_rules = ('-user.collections', '-cards.collections')
+
 class Deck(db.Model, SerializerMixin):
     __tablename__ = 'decks'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    cards = db.relationship('Card', secondary=deck_cards, back_populates='decks')
     user = db.relationship('User', back_populates='decks')
+    cards = db.relationship('Card', secondary=deck_cards, back_populates='decks', cascade="all, delete")
+
+    serialize_rules = ('-user.decks', '-cards.decks')
 
 class Wishlist(db.Model, SerializerMixin):
     __tablename__ = 'wishlists'
@@ -75,3 +79,5 @@ class Wishlist(db.Model, SerializerMixin):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     cards = db.relationship('Card', secondary=wishlist_cards, back_populates='wishlists')
     user = db.relationship('User', back_populates='wishlist')
+
+    serialize_rules = ('-user.wishlist', '-cards.wishlists')
