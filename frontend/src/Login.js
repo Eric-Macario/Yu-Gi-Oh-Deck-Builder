@@ -1,22 +1,25 @@
-import React, { useContext } from 'react';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import { useNavigate, Link } from 'react-router-dom';
-import { UserContext } from './App';
+import React, { useContext, useState } from 'react'
+import { useFormik } from 'formik'
+import * as yup from 'yup'
+import { UserContext } from './App'
+import { useNavigate, Link } from 'react-router-dom'
+import './Login.css'
 
 function Login() {
-  const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const [errorMessage, setErrorMessage] = useState('')
+  const { setUser } = useContext(UserContext)
+  const navigate = useNavigate()
 
   const formSchema = yup.object().shape({
     username: yup.string().required('Username is required'),
     password: yup.string().required('Password is required'),
-  });
+  })
 
   const handleLoginSuccess = (user) => {
-    setUser(user)
+    setUser(user);
+    localStorage.setItem('user', JSON.stringify(user))
     console.log('Login success:', user);
-  };
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -32,49 +35,72 @@ function Login() {
         },
         body: JSON.stringify(values),
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error('Invalid username or password');
+          }
+          return res.json();
+        })
         .then((data) => {
           actions.resetForm();
           handleLoginSuccess(data);
           navigate('/home');
         })
-        .catch((error) => alert(error));
+        .catch((error) => {
+          setErrorMessage(error.message);
+        })
     },
-  });
+  })
 
   return (
-    <div>
-      <form className='form' onSubmit={formik.handleSubmit}>
-        <h1>Login</h1>
-        <label htmlFor='username'>Username</label>
-        <input
-          type='text'
-          id='username'
-          name='username'
-          value={formik.values.username}
-          onChange={formik.handleChange}
-        />
-        {formik.touched.username && formik.errors.username && (
-          <div className='error'>{formik.errors.username}</div>
-        )}
+    <div className="form-container logincon">
+      <div className="form-box">
+        <form className="form" onSubmit={formik.handleSubmit}>
+          <h1 className="form-heading">Login</h1>
+          <div className="form-group">
+            <label htmlFor="username" className="form-label">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formik.values.username}
+              onChange={formik.handleChange}
+              className="form-input"
+            />
+            {formik.touched.username && formik.errors.username && (
+              <div className="form-error">{formik.errors.username}</div>
+            )}
+          </div>
 
-        <label htmlFor='password'>Password</label>
-        <input
-          type='password'
-          id='password'
-          name='password'
-          value={formik.values.password}
-          onChange={formik.handleChange}
-        />
-        {formik.touched.password && formik.errors.password && (
-          <div className='error'>{formik.errors.password}</div>
-        )}
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              className="form-input"
+            />
+            {formik.touched.password && formik.errors.password && (
+              <div className="form-error">{formik.errors.password}</div>
+            )}
+          </div>
 
-        <input type='submit' value='Login' className='button' />
-      </form>
-      <Link to='/signup'>Don't have an account?</Link>
+          {errorMessage && <div className="form-error">{errorMessage}</div>}
+
+          <input type="submit" value="Login" className="form-button" />
+        </form>
+        <div className="form-link">
+          <Link to="/signup">Don't have an account?</Link>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
 
-export default Login
+export default Login;

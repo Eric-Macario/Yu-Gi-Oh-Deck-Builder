@@ -1,26 +1,26 @@
-import React, { createContext, useEffect, useState } from 'react'
-import { Routes, Route, Switch } from 'react-router-dom'
-import './App.css'
-import Login from './Login.js'
-import Home from './Home.js'
-import Gallery from './Gallery.js'
-import Decks from './Decks.js'
-import Deckbuilder from './Deckbuilder.js'
-import Profile from './Profile.js'
-import Navbar from './Navbar.js'
-import Signup from './Signup.js'
+import React, { createContext, useEffect, useState } from 'react';
+import { Routes, Route, Switch } from 'react-router-dom';
+import './App.css';
+import Login from './Login.js';
+import Home from './Home.js';
+import Gallery from './Gallery.js';
+import Decks from './Decks.js';
+import Deckbuilder from './Deckbuilder.js';
+import Profile from './Profile.js';
+import Navbar from './Navbar.js';
+import Signup from './Signup.js';
 
-export const UserContext = createContext()
+export const UserContext = createContext();
 
 function App() {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user')
+    const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      setUser(JSON.parse(storedUser));
     }
-  }, [])
+  }, []);
 
   return (
     <div className="App">
@@ -37,7 +37,7 @@ function App() {
         </Routes>
       </UserContext.Provider>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

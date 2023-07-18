@@ -21,6 +21,8 @@ def reset_tables():
     db.session.execute(text('DELETE FROM decks;'))
     db.session.execute(text('DELETE FROM users;'))
     db.session.execute(text('DELETE FROM deck_cards;'))
+    db.session.execute(text('DELETE FROM collections;'))
+    db.session.execute(text('DELETE FROM collection_cards;'))
     db.session.execute(text('DROP TABLE IF EXISTS users;'))
     db.session.execute(text('CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password TEXT NOT NULL, name TEXT, created_at DATETIME, avatar TEXT);'))
     db.session.commit()

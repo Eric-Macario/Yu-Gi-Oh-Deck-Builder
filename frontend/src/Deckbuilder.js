@@ -3,12 +3,12 @@ import { UserContext } from './App'
 import { useParams } from 'react-router-dom'
 
 function Deckbuilder() {
-  const { user } = useContext(UserContext);
-  const { deckId } = useParams();
-  const [cards, setCards] = useState([]);
-  const [search, setSearch] = useState('');
-  const [filteredCards, setFilteredCards] = useState([]);
-  const [deckCards, setDeckCards] = useState([]);
+  const { user } = useContext(UserContext)
+  const { deckId } = useParams()
+  const [cards, setCards] = useState([])
+  const [search, setSearch] = useState('')
+  const [filteredCards, setFilteredCards] = useState([])
+  const [deckCards, setDeckCards] = useState([])
 
   const fetchCards = () => {
     fetch('http://127.0.0.1:5555/cards')
@@ -79,10 +79,16 @@ function Deckbuilder() {
       },
       body: JSON.stringify(newCard),
     })
-      .then(fetchDeckCards())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        console.log('Card added to deck successfully');
+        fetchDeckCards();
+      })
       .catch(error => {
         console.error('Error adding card to deck:', error);
-      })
+      });
   }
 
   const handleDelete = (card) => {
@@ -95,21 +101,31 @@ function Deckbuilder() {
       },
       body: JSON.stringify({ card_id: [cardId] }),
     })
-      .then( fetchDeckCards())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        console.log('Card removed from deck successfully');
+        fetchDeckCards();
+      })
       .catch(error => {
         console.error('Error removing card from deck:', error);
-      })
+      });
+  }
+
+  const calculateTotalPrice = (cardArray) => {
+    return cardArray.reduce((total, card) => total + card.tcgplayer_price, 0);
   }
 
   return (
-    <div className="container">
-      <div className="row">
+    <div className="container deckbuilder">
+      <div className="row g-5">
         <div className="col-7">
-          <h5>Deck</h5>
-          <div className="container" style={{ height: '600px',  background: 'gray' , overflow: 'auto'}} >
+          <h5 className="deck-heading">Deck Price: ${calculateTotalPrice(deckCardsFiltered).toFixed(2)}</h5>
+          <div className="container deck-container" style={{ height: '620px', overflow: 'auto'}} >
             <div className="row">
             {deckCardsFiltered.map(card => (
-                <div key={`${card.id}`} className="card col-2" style={{  background: 'gray' }}>
+                <div key={`${card.id}`} className="card col-2" >
                   <img
                     src={`../imgs/${card.id}.jpg`}
                     alt={card.name}
@@ -120,11 +136,11 @@ function Deckbuilder() {
               ))}
             </div>
           </div>
-          <h5>Extra Deck</h5>
-            <div className="container" style={{ height: '310px', background: 'gray' , overflow: 'auto'}}>
+          <h5 className="deck-heading">Extra Deck Price: ${calculateTotalPrice(extraDeckCards).toFixed(2)}</h5>
+            <div className="container extra-deck-container" style={{ height: '230px', overflow: 'auto'}}>
               <div className="row">
                 {extraDeckCards.map(card=> (
-                  <div key={`${card.id}`} className="card col-2" style={{ background: 'gray' }}>
+                  <div key={`${card.id}`} className="card col-2" >
                     <img
                       src={`../imgs/${card.id}.jpg`}
                       alt={card.name}
@@ -137,8 +153,8 @@ function Deckbuilder() {
             </div>
         </div>
         <div className="col-5">
-          <h5>Selection</h5>
-          <div className="container" style={{ height: '942px', overflow: 'auto', background: 'gray'}}>
+          <h5 className="selection-heading">Selection</h5>
+          <div className="container selection-container" style={{ height: '890px', overflow: 'auto'}}>
             <div className="row g-1">
               <div className="col-md-12 mb-4">
                 <input
@@ -153,7 +169,7 @@ function Deckbuilder() {
                 <div
                   key={card.id}
                   className="card col-xl-3 col-md-3 col-sm-4 col-xs-6"
-                  style={{ height: '210px' , background: 'gray' }}
+                  style={{ height: '210px' }}
                   onClick={() => handleCardClick(card)}
                 >
                   <img
@@ -168,7 +184,8 @@ function Deckbuilder() {
         </div>
       </div>
     </div>
-  )
+  );
+  
 }
 
 export default Deckbuilder
