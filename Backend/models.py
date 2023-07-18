@@ -10,12 +10,10 @@ deck_cards = db.Table(
     db.Column('card_id', db.Integer, db.ForeignKey('cards.id'))
 )
 
-
 collection_cards = db.Table(
     'collection_cards',
-    db.Column('id', db.Integer, primary_key=True),
-    db.Column('collection_id', db.Integer, db.ForeignKey('collections.id'), primary_key=True),
-    db.Column('card_id', db.Integer, db.ForeignKey('cards.id'), primary_key=True)
+    db.Column('collection_id', db.Integer, db.ForeignKey('collections.id')),
+    db.Column('card_id', db.Integer, db.ForeignKey('cards.id'))
 )
 
 wishlist_cards = db.Table(
@@ -37,7 +35,14 @@ class User(db.Model, SerializerMixin):
     wishlist = db.relationship('Wishlist', back_populates='user')
     decks = db.relationship('Deck', back_populates='user')
 
-    serialize_rules = ('-collections.user', '-wishlist.user', '-decks.user')
+    serialize_rules = (
+        '-collections.user',
+        '-wishlist.user',
+        '-decks.user',
+        'collections',
+        'wishlist',
+        'decks'
+    )
 
 class Card(db.Model, SerializerMixin):
     __tablename__ = 'cards'
@@ -52,7 +57,14 @@ class Card(db.Model, SerializerMixin):
     wishlists = db.relationship('Wishlist', secondary=wishlist_cards, back_populates='cards')
     decks = db.relationship('Deck', secondary=deck_cards, back_populates='cards')
 
-    serialize_rules = ('-collections.cards', '-wishlists.cards', '-decks.cards')
+    serialize_rules = (
+        '-collections',
+        '-wishlists',
+        '-decks',
+        '-collections.user',
+        '-wishlists.user',
+        '-decks.user'
+    )
 
 class Collection(db.Model, SerializerMixin):
     __tablename__ = 'collections'
@@ -61,7 +73,12 @@ class Collection(db.Model, SerializerMixin):
     cards = db.relationship('Card', secondary=collection_cards, back_populates='collections')
     user = db.relationship('User', back_populates='collections')
 
-    serialize_rules = ('-user.collections', '-cards.collections')
+    serialize_rules = (
+        '-user',
+        '-cards.collections',
+        '-cards.decks',
+        'cards.wishlists'
+    )
 
 class Deck(db.Model, SerializerMixin):
     __tablename__ = 'decks'
@@ -71,7 +88,12 @@ class Deck(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='decks')
     cards = db.relationship('Card', secondary=deck_cards, back_populates='decks', cascade="all, delete")
 
-    serialize_rules = ('-user.decks', '-cards.decks')
+    serialize_rules = (
+        '-user',
+        '-cards.decks',
+        '-cards.collections',
+        'cards.wishlists'
+    )
 
 class Wishlist(db.Model, SerializerMixin):
     __tablename__ = 'wishlists'
@@ -80,4 +102,10 @@ class Wishlist(db.Model, SerializerMixin):
     cards = db.relationship('Card', secondary=wishlist_cards, back_populates='wishlists')
     user = db.relationship('User', back_populates='wishlist')
 
-    serialize_rules = ('-user.wishlist', '-cards.wishlists')
+    serialize_rules = (
+        '-user',
+        '-cards.wishlists',
+        'cards.collections',
+        'cards.decks'
+    )
+

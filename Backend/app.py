@@ -44,8 +44,10 @@ class Signup(Resource):
 
         db.session.add(new_user)
         db.session.commit()
-        session['user_id'] = new_user.id
-        return make_response(new_user.to_dict(rules = ('-_password_hash', )), 200)
+
+        response_data = {'user_id': new_user.id}
+        return make_response(jsonify(response_data), 200)
+
 api.add_resource(Signup, '/signup')
 
 
@@ -165,7 +167,6 @@ class DeckByID(Resource):
             response = make_response("Deck not found", 404)
             return response
 
-        # Delete associated cards from deck_cards association table
         db.session.execute(deck_cards.delete().where(deck_cards.c.deck_id == deck_id))
 
         db.session.delete(deck)
@@ -231,6 +232,103 @@ class DeckCards(Resource):
 
 api.add_resource(DeckCards, '/decks/<int:deck_id>/cards')
 
+class Collections(Resource):
+    def get(self):
+        collections = [collection.to_dict() for collection in Collection.query.all()]
+        response = make_response(jsonify(collections), 200)
+        return response
+
+    def post(self):
+        data = request.get_json()
+        try:
+            new_collection = Collection(
+                user_id=data['user_id']
+            )
+
+            db.session.add(new_collection)
+            db.session.commit()
+            response = make_response("Collection created successfully", 201)
+            return response
+        except KeyError:
+            response = make_response("Missing 'user_id' in the request data", 400)
+            return response
+        except Exception as e:
+            response = make_response(f"Error creating collection: {str(e)}", 500)
+            return response
+
+api.add_resource(Collections, '/collections')
+
+class CollectionByID(Resource):
+    def get(self, collection_id):
+        collection = Collection.query.get(collection_id)
+        if not collection:
+            response = make_response("Collection not found", 404)
+            return response
+
+        response = make_response(collection.to_dict(), 200)
+        return response
+
+api.add_resource(CollectionByID, '/collections/<int:collection_id>')
+
+class CollectionCards(Resource):
+    def get(self, collection_id):
+        collection = Collection.query.get(collection_id)
+        if not collection:
+            response = make_response("Collection not found", 404)
+            return response
+
+        cards = [card.to_dict() for card in collection.cards]
+        response = make_response(jsonify(cards), 200)
+        return response
+    
+    def post(self, collection_id):
+        data = request.get_json()
+        card_ids = data.get('card_ids', [])
+        if not card_ids:
+            response = make_response("No 'card_ids' provided in the request data", 400)
+            return response
+        
+        collection = Collection.query.get(collection_id)
+        if not collection:
+            response = make_response("Collection not found", 404)
+            return response
+        
+        for card_id in card_ids:
+            card = Card.query.get(card_id)
+            if card:
+                collection.cards.append(card)
+        
+        db.session.commit()
+        
+        response = make_response("Cards added to deck successfully", 200)
+        return response
+    
+    def delete(self, collection_id):
+        data = request.get_json()
+        card_ids = data.get('card_ids', [])
+        if not card_ids:
+            response = make_response("No 'card_ids' provided in the request data", 400)
+            return response
+
+        collection = Collection.query.get(collection_id)
+        if not collection:
+            response = make_response("Collection not found", 404)
+            return response
+
+        for card_id in card_ids:
+            card = Card.query.get(card_id)
+            if card:
+                if card in collection.cards:
+                    collection.cards.remove(card)
+
+        db.session.commit()
+
+        response = make_response("Cards removed from deck successfully", 200)
+        return response
+
+api.add_resource(CollectionCards, '/collections/<int:collection_id>/cards')
 
 if __name__ == '__main__':
     app.run(port=5555)
+
+
